@@ -96,8 +96,8 @@ int main(int argc, char **argv)
       {
           fscanf(fp, "%f %f %f %f %f %f", &x[1], &y[1], &x[2], &y[2], &x[3], &y[3]);
           //poses[i][0] = t;
-          poses[i][1] = x[robotID];
-          poses[i][2] = y[robotID];
+          poses[i][1] = x[robotID]/100;
+          poses[i][2] = y[robotID]/100;
           //qDebug()<<  poses[i][1]<<" "<<poses[i][2];
 
           i = i + 1;
