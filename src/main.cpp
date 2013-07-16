@@ -15,7 +15,7 @@
 
 geometry_msgs::PoseWithCovarianceStamped robotPose;
 
-#define numOfRobots 3
+#define numOfRobots 5
 
 double poses[10000][3];
 int numOfPoses;
@@ -94,7 +94,7 @@ int main(int argc, char **argv)
       int i = 0;
       while (!feof(fp))
       {
-          fscanf(fp, "%f %f %f %f %f %f", &x[1], &y[1], &x[2], &y[2], &x[3], &y[3]);
+          fscanf(fp, "%f %f %f %f %f %f %f %f %f %f", &x[1], &y[1], &x[2], &y[2], &x[3], &y[3], &x[4], &y[4], &x[5], &y[5]);
           //poses[i][0] = t;
           poses[i][1] = x[robotID]/100;
           poses[i][2] = y[robotID]/100;
