@@ -10,6 +10,7 @@
   <url>http://ros.org/wiki/amclfakeISL</url>
   <depend package="roscpp"/>
   <depend package="std_msgs"/>
+  <depend package="navigationISL"/>
   <depend package="geometry_msgs"/>
   <depend package="tf"/>
 

@@ -1,6 +1,7 @@
 #include "ros/ros.h"
-#include <tf/tf.h>
 #include "std_msgs/String.h"
+#include <tf/tf.h>
+#include <navigationISL/neighborInfo.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <geometry_msgs/Pose.h>
 #include <iostream>
@@ -20,6 +21,21 @@ geometry_msgs::PoseWithCovarianceStamped robotPose;
 double poses[11000][3];
 int numOfPoses;
 int robotID;
+
+bool startPublishingPose = false;
+
+// Received start info
+void startInfoCallback(navigationISL::neighborInfo neighborInfo)
+{
+    QString str = QString::fromStdString(neighborInfo.name);
+
+    if(str == "start")
+    {
+        startPublishingPose = true;
+    }
+
+    return;
+}
 
 
 // Reads the config file
@@ -64,6 +80,8 @@ int main(int argc, char **argv)
   ros::NodeHandle n;
 
   ros::Publisher amclPosePublisher = n.advertise<geometry_msgs::PoseWithCovarianceStamped>("amcl_pose", 1000);
+
+  ros::Subscriber startInfoSubscriber = n.subscribe("communicationISL/neighborInfo",5, startInfoCallback);
 
   ros::Rate loop_rate(0.2);
 
@@ -111,23 +129,25 @@ int main(int argc, char **argv)
   int timeIndx = 0;
   while (ros::ok())
   {
-
-      if (timeIndx<numOfPoses)
+      if (startPublishingPose)
       {
+          if (timeIndx<numOfPoses)
+          {
 
-           robotPose.pose.pose.position.x = poses[timeIndx][1]; //in meters
+               robotPose.pose.pose.position.x = poses[timeIndx][1]; //in meters
 
-           robotPose.pose.pose.position.y = poses[timeIndx][2]; //in meters
+               robotPose.pose.pose.position.y = poses[timeIndx][2]; //in meters
 
-           robotPose.pose.pose.position.z = 0.1;
+               robotPose.pose.pose.position.z = 0.1;
 
-           robotPose.pose.pose.orientation = tf::createQuaternionMsgFromYaw(0);
+               robotPose.pose.pose.orientation = tf::createQuaternionMsgFromYaw(0);
 
-           amclPosePublisher.publish(robotPose);
-      }
-      else
-      {
-           return 0;
+               amclPosePublisher.publish(robotPose);
+          }
+          else
+          {
+               return 0;
+          }
       }
 
       ros::spinOnce();
