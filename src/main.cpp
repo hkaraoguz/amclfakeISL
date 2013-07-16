@@ -17,7 +17,7 @@ geometry_msgs::PoseWithCovarianceStamped robotPose;
 
 #define numOfRobots 5
 
-double poses[10000][3];
+double poses[11000][3];
 int numOfPoses;
 int robotID;
 
