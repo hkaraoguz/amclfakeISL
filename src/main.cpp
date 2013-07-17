@@ -17,8 +17,9 @@
 geometry_msgs::PoseWithCovarianceStamped robotPose;
 
 #define numOfRobots 5
+const int maxIteration = 11000;
 
-double poses[11000][3];
+double poses[maxIteration][3];
 int numOfPoses;
 int robotID;
 
@@ -73,32 +74,85 @@ bool readConfigFile(QString filename)
 
 }
 
+// read simulated poses
+bool readPoses(QString fileName)
+{
+    QFile file(fileName);
+
+    if(!file.open(QFile::ReadOnly))
+    {
+        return false;
+    }
+
+    QTextStream stream(&file);
+    int i  = 0;
+    while(!stream.atEnd())
+    {
+
+        QString str = stream.readLine();
+
+        QStringList posestr = str.split(" ");
+
+        if (i<maxIteration)
+        {
+            poses[i][1] = posestr.at(2*robotID-2).toDouble()/100;
+            poses[i][2] = posestr.at(2*robotID-1).toDouble()/100;
+            //qDebug()<<  poses[i][1]<<" "<<poses[i][2];
+
+            i = i + 1;
+        }
+    }
+
+
+
+    numOfPoses = i;
+
+    std::cout << numOfPoses;
+
+    file.close();
+
+    return true;
+
+}
+
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "amclfakeISL");
+    ros::init(argc, argv, "amclfakeISL");
 
-  ros::NodeHandle n;
+    ros::NodeHandle n;
 
-  ros::Publisher amclPosePublisher = n.advertise<geometry_msgs::PoseWithCovarianceStamped>("amcl_pose", 1000);
+    ros::Publisher amclPosePublisher = n.advertise<geometry_msgs::PoseWithCovarianceStamped>("amcl_pose", 1000);
 
-  ros::Subscriber startInfoSubscriber = n.subscribe("communicationISL/neighborInfo",5, startInfoCallback);
+    ros::Subscriber startInfoSubscriber = n.subscribe("communicationISL/neighborInfo",5, startInfoCallback);
 
-  ros::Rate loop_rate(0.2);
+    ros::Rate loop_rate(0.2);
 
-  QString path = QDir::homePath();
-  path.append("/fuerte_workspace/sandbox/configISL.json");
-
-
-  if(!readConfigFile(path)){
-
-      qDebug()<< "Read Config File Failed!!!";
-
-      ros::shutdown();
-
-      return 0;
-  }
+    QString path = QDir::homePath();
+    path.append("/fuerte_workspace/sandbox/configISL.json");
 
 
+    if(!readConfigFile(path)){
+
+        qDebug()<< "Read Config File Failed!!!";
+
+        ros::shutdown();
+
+        return 0;
+    }
+
+
+    path = QDir::homePath();
+    path.append("/fuerte_workspace/sandbox/poses.txt");
+    if(!readPoses(path)){
+
+        qDebug()<< "Read Pose File Failed!!!";
+
+        ros::shutdown();
+
+        return 0;
+    }
+
+    /*
   FILE *fp;
   fp = fopen("poses.txt","r");
   if(fp==NULL)
@@ -125,41 +179,43 @@ int main(int argc, char **argv)
   }
 
   std::cout << numOfPoses;
-
-  int timeIndx = 0;
-  while (ros::ok())
-  {
-      if (startPublishingPose)
-      {
-          if (timeIndx<numOfPoses)
-          {
-
-               robotPose.pose.pose.position.x = poses[timeIndx][1]; //in meters
-
-               robotPose.pose.pose.position.y = poses[timeIndx][2]; //in meters
-
-               robotPose.pose.pose.position.z = 0.1;
-
-               robotPose.pose.pose.orientation = tf::createQuaternionMsgFromYaw(0);
-
-               amclPosePublisher.publish(robotPose);
-          }
-          else
-          {
-               return 0;
-          }
-      }
-
-      ros::spinOnce();
-
-      loop_rate.sleep();
-
-      timeIndx = timeIndx + 1;
-
-  }
+*/
 
 
-  return 0;
+    int timeIndx = 0;
+    while (ros::ok())
+    {
+        if (startPublishingPose)
+        {
+            if (timeIndx<numOfPoses)
+            {
+
+                robotPose.pose.pose.position.x = poses[timeIndx][1]; //in meters
+
+                robotPose.pose.pose.position.y = poses[timeIndx][2]; //in meters
+
+                robotPose.pose.pose.position.z = 0.1;
+
+                robotPose.pose.pose.orientation = tf::createQuaternionMsgFromYaw(0);
+
+                amclPosePublisher.publish(robotPose);
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+        ros::spinOnce();
+
+        loop_rate.sleep();
+
+        timeIndx = timeIndx + 1;
+
+    }
+
+
+    return 0;
 }
 
 
