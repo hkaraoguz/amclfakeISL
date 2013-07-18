@@ -210,7 +210,7 @@ int main(int argc, char **argv)
 
         loop_rate.sleep();
 
-        timeIndx = timeIndx + 1;
+        timeIndx = timeIndx + 5;
 
     }
 
