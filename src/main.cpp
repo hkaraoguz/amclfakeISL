@@ -22,6 +22,8 @@ const int maxIteration = 11000;
 double poses[maxIteration][3];
 int numOfPoses;
 int robotID;
+double loopRate;
+int increment;
 
 bool startPublishingPose = false;
 
@@ -67,6 +69,17 @@ bool readConfigFile(QString filename)
         robotID = result["robotID"].toInt();
 
         qDebug()<<result["robotID"].toString();
+
+
+        loopRate = result["amclfakeLoopRate"].toDouble();
+
+        qDebug()<<result["amclfakeLoopRate"].toString();
+
+
+        increment = result["amclfakeIncrement"].toInt();
+
+        qDebug()<<result["amclfakeIncrement"].toString();
+
 
     }
     file.close();
@@ -125,7 +138,6 @@ int main(int argc, char **argv)
 
     ros::Subscriber startInfoSubscriber = n.subscribe("communicationISL/neighborInfo",5, startInfoCallback);
 
-    ros::Rate loop_rate(0.2);
 
     QString path = QDir::homePath();
     path.append("/fuerte_workspace/sandbox/configISL.json");
@@ -140,6 +152,8 @@ int main(int argc, char **argv)
         return 0;
     }
 
+
+    ros::Rate loop_rate(loopRate);
 
     path = QDir::homePath();
     path.append("/fuerte_workspace/sandbox/poses.txt");
@@ -210,7 +224,7 @@ int main(int argc, char **argv)
 
         loop_rate.sleep();
 
-        timeIndx = timeIndx + 5;
+        timeIndx = timeIndx + increment;
 
     }
 
