@@ -214,17 +214,18 @@ int main(int argc, char **argv)
 
                 amclPosePublisher.publish(robotPose);
             }
-            else
+/*            else
             {
                 return 0;
             }
+  */
+            timeIndx = timeIndx + increment;
+
         }
 
         ros::spinOnce();
 
         loop_rate.sleep();
-
-        timeIndx = timeIndx + increment;
 
     }
 
